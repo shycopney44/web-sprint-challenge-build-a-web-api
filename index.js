@@ -12,3 +12,14 @@ I need this code, but don't know where, perhaps should make some middleware, don
 
 Pull your server into this file and start it!
 */
+require('dotenv').config(); // Ensure you have 'dotenv' installed and configured.
+
+const express = require('express');
+const app = express();
+
+// Use the port number from the environment variable or default to 9000
+const PORT = process.env.PORT || 9000;
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

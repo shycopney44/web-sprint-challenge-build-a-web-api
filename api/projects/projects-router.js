@@ -1,30 +1,7 @@
 const express = require('express');
 const Projects = require('./projects-model');
+const { validateProjectId, validateProjectBody } = require('./projects-middleware');
 const router = express.Router();
-
-// Middleware for validation
-const validateProjectId = async (req, res, next) => {
-  try {
-    const project = await Projects.get(req.params.id);
-    if (project) {
-      req.project = project;
-      next();
-    } else {
-      res.status(404).json({ message: 'Project not found' });
-    }
-  } catch (err) {
-    next(err); // Pass error to the error-handling middleware
-  }
-};
-
-const validateProjectBody = (req, res, next) => {
-  const { name, description } = req.body;
-  if (!name || !description) {
-    res.status(400).json({ message: 'Missing required fields: name and description' });
-  } else {
-    next();
-  }
-};
 
 // Endpoints
 router.get('/', async (req, res, next) => {
@@ -52,11 +29,12 @@ router.post('/', validateProjectBody, async (req, res, next) => {
 router.put('/:id', validateProjectId, validateProjectBody, async (req, res, next) => {
   try {
     const updatedProject = await Projects.update(req.params.id, req.body);
-    res.status(200).json(updatedProject);
+    res.status(200).json(updatedProject); // Respond with the updated project
   } catch (err) {
-    next(err);
+    next(err); // Pass errors to error-handling middleware
   }
 });
+
 
 router.delete('/:id', validateProjectId, async (req, res, next) => {
   try {

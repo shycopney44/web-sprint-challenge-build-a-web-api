@@ -1,25 +1,37 @@
-const Projects = require('./projects-model');
+const Projects = require('./projects-model'); // Helper model for database operations
 
-async function validateProjectId(req, res, next) {
+// Middleware: Validate Project ID
+const validateProjectId = async (req, res, next) => {
   try {
     const project = await Projects.get(req.params.id);
     if (project) {
       req.project = project;
-      next();
+      next(); // Proceed to the next middleware/handler
     } else {
       res.status(404).json({ message: 'Project not found' });
     }
   } catch (err) {
-    res.status(500).json({ message: 'Error validating project ID' });
+    next(err); // Pass error to the error-handling middleware
   }
-}
+};
 
-function validateProjectBody(req, res, next) {
+// Middleware: Validate Project Body
+const validateProjectBody = (req, res, next) => {
   const { name, description, completed } = req.body;
-  if (!name || !description || completed === undefined) {
-    return res.status(400).json({ message: 'Missing required fields' });
-  }
-  next();
-}
 
-module.exports = { validateProjectId, validateProjectBody };
+  // Check for missing required fields
+  if (!name || !description || completed === undefined) {
+    return res.status(400).json({
+      message: 'Missing required fields: name, description, or completed',
+    });
+  }
+
+  next(); // Proceed if all fields are present
+};
+
+
+// Export middleware functions
+module.exports = {
+  validateProjectId,
+  validateProjectBody,
+};
